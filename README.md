@@ -31,6 +31,9 @@ Os dois Hamiltonianos são aplicados iterativamente no circuito quântico.
 🔹 Hamiltoniano de Custo: Este Hamiltoniano codifica a função objetivo do problema. Se estivermos resolvendo um problema QUBO, é definido como:
 onde:
 
+![Hamiltonianos de custo](https://quicklatex.com/cache3/92/ql_77c199a9317eef6d78cab55f77cd6a92_l3.png)
+
+
 𝑄𝑖𝑗: são os coeficientes da matriz QUBO.
 𝑍𝑖: é o operador de Pauli-Z aplicado ao qubit 
 🔹 O estado de menor energia do sistema quântico representará a melhor solução.
@@ -46,8 +49,10 @@ Isso significa que o Hamiltoniano de Mixer age mudando os valores das variáveis
 
 🔹 Hamiltoniano de Mixer: O Mixer permite a exploração do espaço de soluções. Ele é definido como:
 
-
 onde:
+
+![Hamiltoniano Mixer](https://quicklatex.com/cache3/47/ql_075ae5b341295dfd833e1ad53a19c447_l3.png)
+
 
 𝑋𝑖: é o operador de Pauli-X aplicado ao qubit 
 🔹 Este Hamiltoniano gira os qubits, permitindo explorar diferentes configurações.
@@ -56,8 +61,6 @@ onde:
 ## Construção do Circuito Quântico
 
 O circuito QAOA é montado aplicando camadas alternadas de 𝐻C e 𝐻M, ajustadas pelos parâmetros variacionais (𝛾,𝛽).
-
-
 
 1. Inicialização
 🔹 Preparamos um estado inicial uniforme superposto
@@ -124,12 +127,22 @@ print("Valor Ótimo:", result.fval)
 🔹 Medimos os qubits e ajustamos os parâmetros com um otimizador clássico.
 
 
---🔹 
+## Aplicações do QAOA
+
+O QAOA pode ser usado para otimizar:
+
+🔹 Trading Algorítmico → Ajuste de parâmetros de indicadores como RSI, MACD, Bandas de Bollinger.
+🔹 Seleção de Portfólio → Escolher ativos maximizando retorno e minimizando risco.
+🔹 Roteamento Logístico → Encontrar o caminho mais eficiente para entregas.
+🔹 Alocação de Recursos → Escolher a melhor distribuição de investimentos.
+
+---
 Uma das primeiras coisas que você pode fazer antes de começar a *tradear* é escolher um grupo de indicadores, no mundo da análise técnica nós temos 6 categorias de indicadores:
 
 1. Indicadores de Tendência
 
-Objetivo: Identificar a direção predominante do mercado (tendência de alta, baixa ou lateral). :pino: Como Funcionam: Calculam médias ou suavizam preços para detectar tendências e reversões.
+Objetivo: Identificar a direção predominante do mercado (tendência de alta, baixa ou lateral). 
+Como Funcionam: Calculam médias ou suavizam preços para detectar tendências e reversões.
 
 Exemplos:
 🔹 Médias Móveis (SMA, EMA, WMA, ALMA) – Suavizam preços para mostrar a tendência.
@@ -140,7 +153,8 @@ Exemplos:
 
 2. Indicadores de Momentum (Força)
 
-Objetivo: Medir a velocidade das mudanças nos preços e identificar momentos de entrada e saída. :pino: Como Funcionam: Comparam preços atuais e passados para medir a força da tendência.
+Objetivo: Medir a velocidade das mudanças nos preços e identificar momentos de entrada e saída. 
+Como Funcionam: Comparam preços atuais e passados para medir a força da tendência.
 
 Exemplos:
 🔹 RSI (Relative Strength Index) – Mede a força do movimento de preços e detecta sobrecompra/sobrevenda.
@@ -151,7 +165,8 @@ Exemplos:
 
 3. Indicadores de Volume
 
-Objetivo: Analisar o volume de negociações para confirmar tendências e prever reversões. :pino: Como Funcionam: Observam se o volume aumenta ou diminui em relação aos preços.
+Objetivo: Analisar o volume de negociações para confirmar tendências e prever reversões. 
+Como Funcionam: Observam se o volume aumenta ou diminui em relação aos preços.
 
 Exemplos:
 🔹 OBV (On-Balance Volume) – Mede o fluxo de volume baseado em alta e baixa de preços.
@@ -162,7 +177,8 @@ Exemplos:
 
 4. Indicadores de Volatilidade
 
-Objetivo: Medir a variação e a imprevisibilidade dos preços para antecipar mudanças no mercado. :pino: Como Funcionam: Analisam a amplitude dos preços e sua variação ao longo do tempo.
+Objetivo: Medir a variação e a imprevisibilidade dos preços para antecipar mudanças no mercado. 
+Como Funcionam: Analisam a amplitude dos preços e sua variação ao longo do tempo.
 
 Exemplos:
 🔹 Bandas de Bollinger – Criam uma faixa ao redor do preço para indicar se está sobrecomprado ou sobrevendido.
@@ -173,7 +189,8 @@ Exemplos:
 
 5. Indicadores de Suporte e Resistência
 
-Objetivo: Identificar níveis onde os preços tendem a reverter ou consolidar. :pino: Como Funcionam: Calculam pontos estratégicos com base em máximas, mínimas e médias anteriores.
+Objetivo: Identificar níveis onde os preços tendem a reverter ou consolidar. 
+Como Funcionam: Calculam pontos estratégicos com base em máximas, mínimas e médias anteriores.
 
 Exemplos:
 🔹 Pivôs – Calculam pontos de suporte e resistência com base nos preços anteriores.
@@ -183,7 +200,8 @@ Exemplos:
 
 6. Indicadores de Ciclos e Estatísticos
 
-Objetivo: Identificar padrões e ciclos de mercado que podem influenciar os preços. :pino: Como Funcionam: Utilizam cálculos matemáticos para prever mudanças de comportamento do mercado.
+Objetivo: Identificar padrões e ciclos de mercado que podem influenciar os preços. 
+Como Funcionam: Utilizam cálculos matemáticos para prever mudanças de comportamento do mercado.
 
 Exemplos:
 🔹 Elliott Wave Theory – Análise de padrões de ondas para prever ciclos de alta e baixa.
@@ -220,7 +238,7 @@ func runQAOA(strategy Strategy, candles []Candle, initialParams map[string]float
 		for param, value := range bestParams {
 			rang := paramRanges[param]
 			// Aplica perturbação quântica
-			delta := (rang.Max 🔹 rang.Min) * temperature * (rand.Float64()*2 🔹 1)
+			delta := (rang.Max - rang.Min) * temperature * (rand.Float64()*2 - 1)
 			newValue := value + delta
 			newParams[param] = math.Max(math.Min(newValue, rang.Max), rang.Min)
 		}
