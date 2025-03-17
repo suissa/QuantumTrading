@@ -6,7 +6,6 @@ Nesse repositório eu vou repassar os algoritmos quânticos que utilizo para Tra
 
 Uma das primeiras coisas que você pode fazer antes de começar a *tradear* é escolher um grupo de indicadores, no mundo da análise técnica nós temos 6 categorias de indicadores:
 
-
 1. Indicadores de Tendência
 
 Objetivo: Identificar a direção predominante do mercado (tendência de alta, baixa ou lateral). :pino: Como Funcionam: Calculam médias ou suavizam preços para detectar tendências e reversões.
@@ -71,11 +70,57 @@ Exemplos:
 - Detrended Price Oscillator (DPO) – Remove tendências para focar nos ciclos de curto prazo.
 
 
+Então a ideia ou escolher uma ou duas categorias e focar em um timeframe pequeno, médio ou grande, ou fazer um completo abrangendo todas as categorias.
+
+Mas além dos indicadores nós também podemos otimizar o valor do StopLoss e do TakeProfit, isso muda completamente a sua estratégia, vai por mim.
 
 
 
 
-3h27
-O indicador ALMA (Arnaud Legoux Moving Average) pertence à categoria de médias móveis e, mais especificamente, às médias 
+```go
+func runQAOA(strategy Strategy, candles []Candle, initialParams map[string]float64, iterations int) map[string]float64 {
+	bestParams := make(map[string]float64)
+	copyParams(bestParams, initialParams)
 
-usar QAOA (Quantum Approximate Optimization Algorithm) para ajustar os parâmetros ideais de uma estratégia de trading baseada em indicadores técnicos. Isso permite encontrar combinações ótimas de médias móveis, RSI, bandas de Bollinger, entre outros, maximizando lucro e minimizando risco.
+	paramRanges := strategy.GetParamRanges()
+	bestFitness := -math.MaxFloat64
+
+	// Define os parâmetros do QAOA
+	temperature := 1.0
+	coolingRate := 0.95
+
+	strategy.SetParams(initialParams)
+	result := strategy.Simulate(candles)
+	bestFitness = calculateFitness(result)
+
+	for iter := 0; iter < iterations; iter++ {
+		// Gera uma nova solução com perturbação quântica
+		newParams := make(map[string]float64)
+		for param, value := range bestParams {
+			rang := paramRanges[param]
+			// Aplica perturbação quântica
+			delta := (rang.Max - rang.Min) * temperature * (rand.Float64()*2 - 1)
+			newValue := value + delta
+			newParams[param] = math.Max(math.Min(newValue, rang.Max), rang.Min)
+		}
+
+		// Avalia a nova solução
+		strategy.SetParams(newParams)
+		result := strategy.Simulate(candles)
+		newFitness := calculateFitness(result)
+
+		// Aceita ou rejeita a nova solução baseado na probabilidade quântica
+		if newFitness > bestFitness || rand.Float64() < math.Exp((newFitness-bestFitness)/temperature) {
+			bestFitness = newFitness
+			copyParams(bestParams, newParams)
+		}
+
+		// Reduz a temperatura
+		temperature *= coolingRate
+
+		fmt.Printf("Iteração QAOA %d/%d - Melhor Fitness: %.2f\n", iter+1, iterations, bestFitness)
+	}
+
+	return bestParams
+}
+```
