@@ -625,4 +625,6 @@ if df is not None:
 
 Now you can just venture into testing various indicator combinations.
 
-![Quantum Hive Fund](https://i.imgur.com/NmGXqh1.png)
+![Quantum Hive Fund](https://i.imgur.com/oTW3BMs.pngg)
+
+[Quantum Hive Fund site](https://quantumhivefund.com)
