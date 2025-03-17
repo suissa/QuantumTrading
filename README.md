@@ -1,3 +1,6 @@
+![](https://i.imgur.com/iXYr3VT.png)
+
+
 # QuantumTrading
 
 Nesse repositório eu vou repassar os algoritmos quânticos que utilizo para Trading.
