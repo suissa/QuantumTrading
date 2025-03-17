@@ -1,4 +1,4 @@
-![](https://i.imgur.com/iXYr3VT.png)
+![](https://i.imgur.com/8n7z5yH.png)
 
 
 # QuantumTrading
