@@ -3,131 +3,125 @@
 
 # QuantumTrading
 
-Nesse repositório eu vou repassar os algoritmos quânticos que utilizo para Trading.
+In this repository, I will share the quantum algorithms that I use for Trading.
 
 ## QAOA (Quantum Approximate Optimization Algorithm)
 
-O QAOA (Quantum Approximate Optimization Algorithm) é um algoritmo híbrido quântico-clássico desenvolvido para resolver problemas de otimização combinatória, como problemas de portfólio financeiro, roteamento, seleção de trading e outros. Ele funciona aplicando camadas alternadas de operações quânticas para aproximar a melhor solução possível.
+QAOA (Quantum Approximate Optimization Algorithm) is a hybrid quantum-classical algorithm developed to solve combinatorial optimization problems, such as financial portfolio problems, routing, trading selection, and others. It works by applying alternating layers of quantum operations to approximate the best possible solution.
 
-## Fundamentos do QAOA
-O QAOA é projetado para resolver problemas de QUBO (Quadratic Unconstrained Binary Optimization) e problemas modelados como um Hamiltoniano de Ising, que podem ser descritos por:
-Estrutura do Algoritmo
-O QAOA combina computação quântica e otimização clássica. Ele segue estes passos:
+## QAOA Fundamentals
+QAOA is designed to solve QUBO (Quadratic Unconstrained Binary Optimization) problems and problems modeled as an Ising Hamiltonian, which can be described by:
+Algorithm Structure
+QAOA combines quantum computing and classical optimization. It follows these steps:
 
-1. Definir o problema como um Hamiltoniano (Hamiltoniano de Custo).
-2. Escolher uma Hamiltoniana de Mixer para explorar o espaço de soluções.
-3. Construir um circuito quântico parametrizado com camadas alternadas de gates baseadas nesses Hamiltonianos.
-4. Executar o circuito e medir os resultados, ajustando os parâmetros com um otimizador clássico.
+1. Define the problem as a Hamiltonian (Cost Hamiltonian).
+2. Choose a Mixer Hamiltonian to explore the solution space.
+3. Build a parameterized quantum circuit with alternating layers of gates based on these Hamiltonians.
+4. Execute the circuit and measure the results, adjusting parameters with a classical optimizer.
 
-## Componentes Chave do Algoritmo
+## Key Algorithm Components
 
-O QAOA tem três partes principais:
+QAOA has three main parts:
 
-- Hamiltoniano de Custo: Representa o problema de otimização.
-- Hamiltoniano de Mixer: Explora possíveis soluções.
-- Parâmetros Variacionais: Ajustam a evolução do circuito.
+- Cost Hamiltonian: Represents the optimization problem.
+- Mixer Hamiltonian: Explores possible solutions.
+- Variational Parameters: Adjust the circuit evolution.
 
-## Definição dos Hamiltonianos
+## Hamiltonian Definition
 
-Os dois Hamiltonianos são aplicados iterativamente no circuito quântico.
+The two Hamiltonians are applied iteratively in the quantum circuit.
 
-- Hamiltoniano de Custo: Este Hamiltoniano codifica a função objetivo do problema. Se estivermos resolvendo um problema QUBO, é definido como:
-onde:
+- Cost Hamiltonian: This Hamiltonian encodes the objective function of the problem. If we're solving a QUBO problem, it is defined as:
+where:
 
-![Hamiltonianos de custo](https://quicklatex.com/cache3/92/ql_77c199a9317eef6d78cab55f77cd6a92_l3.png)
+![Cost Hamiltonians](https://quicklatex.com/cache3/92/ql_77c199a9317eef6d78cab55f77cd6a92_l3.png)
 
+𝑄𝑖𝑗: are the QUBO matrix coefficients.
+𝑍𝑖: is the Pauli-Z operator applied to qubit 
+- The lowest energy state of the quantum system will represent the best solution.
 
-𝑄𝑖𝑗: são os coeficientes da matriz QUBO.
-𝑍𝑖: é o operador de Pauli-Z aplicado ao qubit 
-- O estado de menor energia do sistema quântico representará a melhor solução.
+### What does the Pauli-X Operator do?
 
-### O que o Operador Pauli-X faz?
+The Pauli-X operator (𝑋) acts as a switch, swapping qubit states:
 
-O operador Pauli-X (𝑋) age como um interruptor, trocando os estados dos qubits:
+- If a qubit is in state ∣0⟩, Pauli-X transforms it to ∣1⟩.
+- If a qubit is in state ∣1⟩, Pauli-X transforms it to ∣0⟩.
 
-- Se um qubit estiver no estado ∣0⟩, o Pauli-X o transforma em ∣1⟩.
-- Se um qubit estiver no estado ∣1⟩, o Pauli-X o transforma em ∣0⟩.
+This means that the Mixer Hamiltonian acts by changing the values of variables in the system, allowing the exploration of new solutions.
 
-Isso significa que o Hamiltoniano de Mixer age mudando os valores das variáveis no sistema, permitindo a exploração de novas soluções.
+- Mixer Hamiltonian: The Mixer allows exploration of the solution space. 
 
-- Hamiltoniano de Mixer: O Mixer permite a exploração do espaço de soluções. 
+It is defined as:
 
-Ele é definido como:
+![Mixer Hamiltonian](https://quicklatex.com/cache3/47/ql_075ae5b341295dfd833e1ad53a19c447_l3.png)
 
-![Hamiltoniano Mixer](https://quicklatex.com/cache3/47/ql_075ae5b341295dfd833e1ad53a19c447_l3.png)
+𝑋𝑖: is the Pauli-X operator applied to qubit 
+- This Hamiltonian rotates the qubits, allowing exploration of different configurations.
 
-𝑋𝑖: é o operador de Pauli-X aplicado ao qubit 
-- Este Hamiltoniano gira os qubits, permitindo explorar diferentes configurações.
+The formula calculates the total energy of a variable configuration, taking into account both interactions between variables and the effect of each variable in isolation, helping QAOA find the best possible solution for an optimization problem.
 
-A fórmula calcula a energia total de uma configuração de variáveis, levando em conta tanto interações entre variáveis quanto o efeito de cada variável isoladamente, ajudando o QAOA a encontrar a melhor solução possível para um problema de otimização.
+## Quantum Circuit Construction
 
-## Construção do Circuito Quântico
+The QAOA circuit is assembled by applying alternating layers of 𝐻C and 𝐻M, adjusted by variational parameters (𝛾,𝛽).
 
-O circuito QAOA é montado aplicando camadas alternadas de 𝐻C e 𝐻M, ajustadas pelos parâmetros variacionais (𝛾,𝛽).
+1. Initialization
+- We prepare a uniform superposed initial state
 
-1. Inicialização
-- Preparamos um estado inicial uniforme superposto
+2. Cost Hamiltonian Application
+- We apply controlled phase gates, encoding the objective function in the quantum system.
 
-2. Aplicação do Hamiltoniano de Custo
-- Aplicamos gates de fase controladas, codificando a função objetivo no sistema quântico.
+3. Mixer Hamiltonian Application
+- We apply rotations, allowing the system to explore different solutions.
 
-3. Aplicação do Hamiltoniano de Mixer
-- Aplicamos rotações, permitindo que o sistema explore diferentes soluções.
+4. Measurement
+- The circuit is measured in computational basis ∣0⟩,∣1⟩ to find the optimal solution.
 
-4. Medição
-- O circuito é medido em base computacional ∣0⟩,∣1⟩ para encontrar a solução ótima.
+5. Classical Optimization
+- We adjust parameters γ,β using a classical optimizer (e.g., COBYLA, SPSA, Nelder-Mead).
+- We repeat the process until finding the best value.
 
-5. Otimização Clássica
-- Ajustamos os parâmetros γ,β usando um otimizador clássico (ex.: COBYLA, SPSA, Nelder-Mead).
-- Repetimos o processo até encontrar o melhor valor.
-
-### O que é o Operador Pauli-Z?
-O Pauli-Z (𝑍) é um dos três operadores de Pauli, fundamentais na mecânica quântica e na computação quântica. Ele é representado pela matriz de Pauli-Z:
+### What is the Pauli-Z Operator?
+The Pauli-Z (𝑍) is one of the three Pauli operators, fundamental in quantum mechanics and quantum computing. It is represented by the Pauli-Z matrix:
 [ 1 0
   0−1]
   
-Esse operador age sobre qubits, alterando seu estado de uma maneira específica.
+This operator acts on qubits, altering their state in a specific way.
 
-- Como o Pauli-Z funciona na computação quântica?
-O operador Z não altera o estado ∣0⟩, mas inverte o sinal do estado ∣1⟩:
+- How does Pauli-Z work in quantum computing?
+The Z operator doesn't change the ∣0⟩ state, but inverts the sign of the ∣1⟩ state:
 
-Se aplicado ao qubit no estado ∣0⟩, o qubit permanece igual: Z∣0⟩ = ∣0⟩
-Se aplicado ao qubit no estado ∣1⟩, o qubit muda de sinal: Z∣1⟩ = −∣1⟩
-Isso significa que o operador introduz uma fase negativa no qubit ∣1⟩, mas não afeta ∣0⟩.
+When applied to a qubit in state ∣0⟩, the qubit remains the same: Z∣0⟩ = ∣0⟩
+When applied to a qubit in state ∣1⟩, the qubit changes sign: Z∣1⟩ = −∣1⟩
+This means the operator introduces a negative phase in the ∣1⟩ qubit but doesn't affect ∣0⟩.
 
-- Interpretação Física do Pauli-Z
-O operador Pauli-Z está diretamente relacionado ao eixo Z da esfera de Bloch, que representa os estados quânticos geometricamente.
+- Physical Interpretation of Pauli-Z
+The Pauli-Z operator is directly related to the Z-axis of the Bloch sphere, which represents quantum states geometrically.
 
-- ∣0⟩ está no topo da esfera de Bloch e não é afetado pelo Pauli-Z.
-- ∣1⟩ está na parte inferior da esfera de Bloch e recebe um fator de fase -1 quando o Pauli-Z é aplicado.
+- ∣0⟩ is at the top of the Bloch sphere and is not affected by Pauli-Z.
+- ∣1⟩ is at the bottom of the Bloch sphere and receives a -1 phase factor when Pauli-Z is applied.
 
-Isso significa que o operador Pauli-Z reflete os qubits em torno do eixo Z.
+This means the Pauli-Z operator reflects qubits around the Z-axis.
 
-#### Uso do Pauli-Z na Computação Quântica
+#### Use of Pauli-Z in Quantum Computing
 
-O operador Pauli-Z aparece em vários contextos, incluindo:
+The Pauli-Z operator appears in various contexts, including:
 
-- Correção de Erros Quânticos: o Pauli-Z pode ser usado para detectar e corrigir certos tipos de erros em qubits.
+- Quantum Error Correction: Pauli-Z can be used to detect and correct certain types of errors in qubits.
 
+#### Measurements in Quantum Circuits
 
-#### Medições em Circuitos Quânticos
+Many measurements in quantum computing are made in the Z basis, where Pauli-Z helps distinguish between ∣0⟩ and ∣1⟩.
 
-Muitas medições na computação quântica são feitas na base Z, onde o Pauli-Z ajuda a distinguir entre ∣0⟩ e ∣1⟩.
+#### QAOA and Ising Models
 
+In the Quantum Approximate Optimization Algorithm (QAOA), the Pauli-Z operator is used to define constraints and interactions between qubits, modeling problems such as financial optimization and logistic problems.
+4️⃣ Phase Gates (RZ Gate)
 
-#### QAOA e Modelos de Ising
+The Pauli-Z operator can be seen as a special case of the RZ(θ) gate, used to add phases in quantum circuits.
 
-No Quantum Approximate Optimization Algorithm (QAOA), o operador Pauli-Z é usado para definir restrições e interações entre qubits, modelando problemas como otimização financeira e problemas logísticos.
-4️⃣ Portas de Fase (RZ Gate)
+In QAOA, it appears in the Cost Hamiltonian to define relationships between variables, helping solve problems like trading and financial portfolio.
 
-O operador Pauli-Z pode ser visto como um caso especial da porta RZ(θ), usada para adicionar fases em circuitos quânticos.
-
-No QAOA, ele aparece na Hamiltoniana de Custo para definir relações entre variáveis, ajudando a resolver problemas como trading e portfólio financeiro.
-
-
-
-
-## Exemplo de Implementação no Qiskit
+## Implementation Example in Qiskit
 
 ```py
 from qiskit import Aer
@@ -139,197 +133,171 @@ from qiskit.algorithms.optimizers import COBYLA
 from qiskit_optimization.algorithms import MinimumEigenOptimizer
 from docplex.mp.model import Model
 
-# Criar o problema de otimização (QUBO)
+# Create optimization problem (QUBO)
 mdl = Model('QAOA_Optimization')
 x1 = mdl.binary_var(name='x1')
 x2 = mdl.binary_var(name='x2')
 x3 = mdl.binary_var(name='x3')
 
-# Definir a função objetivo (minimizar -x1x2 - x2x3 + x1)
+# Define objective function (minimize -x1x2 - x2x3 + x1)
 mdl.maximize(-x1 * x2 - x2 * x3 + x1)
 
-# Converter para QUBO
+# Convert to QUBO
 qp = from_docplex_mp(mdl)
 
-# Criar simulador e otimizador QAOA
+# Create simulator and QAOA optimizer
 estimator = Estimator()
 qaoa = QAOA(estimator, optimizer=COBYLA())
 
-# Resolver o problema
+# Solve the problem
 optimizer = MinimumEigenOptimizer(qaoa)
 result = optimizer.solve(qp)
 
-# Exibir solução
-print("Melhor Solução:", result.x)
-print("Valor Ótimo:", result.fval)
-
+# Display solution
+print("Best Solution:", result.x)
+print("Optimal Value:", result.fval)
 ```
 
+## Code Explanation
+- We create a QUBO problem with variables 
+- We define the objective function.
+- We convert to a quantum Hamiltonian.
+- We apply QAOA to find the solution.
+- We measure the qubits and adjust parameters with a classical optimizer.
 
-## Explicação do Código
-- Criamos um problema QUBO com variáveis 
+## QAOA Applications
 
-- Definimos a função objetivo.
+QAOA can be used to optimize:
 
-- Convertamos para um Hamiltoniano quântico.
+- Algorithmic Trading → Adjustment of indicator parameters like RSI, MACD, Bollinger Bands.
+- Portfolio Selection → Choose assets maximizing return and minimizing risk.
+- Logistic Routing → Find the most efficient delivery path.
+- Resource Allocation → Choose the best investment distribution.
 
-- Aplicamos QAOA para encontrar a solução.
-
-- Medimos os qubits e ajustamos os parâmetros com um otimizador clássico.
-
-
-## Aplicações do QAOA
-
-O QAOA pode ser usado para otimizar:
-
-- Trading Algorítmico → Ajuste de parâmetros de indicadores como RSI, MACD, Bandas de Bollinger.
-
-- Seleção de Portfólio → Escolher ativos maximizando retorno e minimizando risco.
-
-- Roteamento Logístico → Encontrar o caminho mais eficiente para entregas.
-
-- Alocação de Recursos → Escolher a melhor distribuição de investimentos.
-
-
-| Algoritmo	| Características |
+| Algorithm | Characteristics |
 ------------|-----------------|
-| QAOA	| Aproxima soluções combinatórias usando circuitos quânticos |
-| Branch & Bound	| Divide o problema em subproblemas e explora soluções |
-| Algoritmos Genéticos	| Evolui soluções através de mutação e seleção |
-| Programação Linear	| Resolve problemas com restrições lineares |
+| QAOA | Approximates combinatorial solutions using quantum circuits |
+| Branch & Bound | Divides the problem into subproblems and explores solutions |
+| Genetic Algorithms | Evolves solutions through mutation and selection |
+| Linear Programming | Solves problems with linear constraints |
 
+How does QAOA know it found an optimized solution?
+QAOA (Quantum Approximate Optimization Algorithm) optimizes a problem based on minimizing the energy of the Cost Hamiltonian (𝐻𝐶). But how does it know it's optimized? It follows three main criteria:
 
+1. Measures the qubits and verifies which state appears most frequently
 
+At the end of the quantum circuit execution, the qubits are measured. 
+QAOA repeats the experiment several times and records which states appear most frequently.
 
-Como o QAOA sabe que encontrou uma solução otimizada?
-O QAOA (Quantum Approximate Optimization Algorithm) otimiza um problema baseado na minimização de energia da Hamiltoniana de Custo (𝐻𝐶). Mas como ele sabe que está otimizado? Ele segue três critérios principais:
+- If a certain state appears many times, this indicates it has the lowest possible energy → means it is probably the best solution.
 
+2. Measures the solution's energy
 
-1. Mede os qubits e verifica qual estado aparece com mais frequência
+QAOA calculates the energy associated with the most frequent state.
 
-No final da execução do circuito quântico, os qubits são medidos. 
-O QAOA repete o experimento várias vezes e registra quais estados aparecem com mais frequência.
-
-- Se um determinado estado aparece muitas vezes, isso indica que ele tem a menor energia possível → significa que ele é provavelmente a melhor solução.
-
-
-2. Mede a energia da solução
-
-O QAOA calcula a energia associada ao estado mais frequente.
-
-A energia é dada por:
+The energy is given by:
 
 ![](https://quicklatex.com/cache3/2c/ql_d51cd2b3088c1d8af440aaf90200652c_l3.png)
 
-3. O Algoritmo Variacional Ajusta os Parâmetros
-4. 
-O QAOA usa otimização clássica para encontrar os melhores valores de 𝛾 e 𝛽, que controlam a evolução do circuito.
+3. The Variational Algorithm Adjusts Parameters
 
-- O circuito começa com um chute inicial de 𝛾 e 𝛽.
-- Executa e mede os qubits.
-- Calcula a energia do estado encontrado.
-- Ajusta 𝛾 e 𝛽 para reduzir ainda mais a energia.
-- Repete até encontrar a melhor solução.
+QAOA uses classical optimization to find the best values of 𝛾 and 𝛽, which control the circuit evolution.
 
-- Ele otimiza como um jogador de xadrez que aprende com seus erros: se o movimento anterior não foi bom, ele tenta outro até encontrar a estratégia vencedora.
+- The circuit starts with an initial guess of 𝛾 and 𝛽.
+- Executes and measures the qubits.
+- Calculates the energy of the found state.
+- Adjusts 𝛾 and 𝛽 to further reduce energy.
+- Repeats until finding the best solution.
 
-Como saber se a solução encontrada é boa?
+- It optimizes like a chess player learning from mistakes: if the previous move wasn't good, it tries another until finding the winning strategy.
 
-- O estado mais frequente entre as medições indica a melhor solução.
-- Se a energia do sistema for mínima, então essa é provavelmente a melhor configuração possível.
-- O otimizador clássico ajusta os parâmetros até que a energia não diminua mais.
-- Comparamos com soluções clássicas para ver se a resposta do QAOA bate com soluções exatas.
+How to know if the found solution is good?
 
+- The most frequent state among measurements indicates the best solution.
+- If the system's energy is minimal, then this is probably the best possible configuration.
+- The classical optimizer adjusts parameters until energy no longer decreases.
+- We compare with classical solutions to see if QAOA's answer matches exact solutions.
 
-
- 
 ---
 
-Bom com isso você já aprendeu bastanet sobre Otimização Quântica, agora é a hora de escolher os indicadores a serem otimizados, no mundo da análise técnica nós temos 6 categorias de indicadores:
+Now that you've learned a lot about Quantum Optimization, it's time to choose the indicators to be optimized. In the world of technical analysis, we have 6 categories of indicators:
 
-1. Indicadores de Tendência
+1. Trend Indicators
 
-Objetivo: Identificar a direção predominante do mercado (tendência de alta, baixa ou lateral). 
-Como Funcionam: Calculam médias ou suavizam preços para detectar tendências e reversões.
+Objective: Identify the predominant market direction (uptrend, downtrend, or sideways). 
+How They Work: Calculate averages or smooth prices to detect trends and reversals.
 
-Exemplos:
-- Médias Móveis (SMA, EMA, WMA, ALMA) – Suavizam preços para mostrar a tendência.
-- MACD (Moving Average Convergence Divergence) – Mede a força e a direção da tendência com médias móveis.
-- ADX (Average Directional Index) – Mede a força da tendência, mas não sua direção.
-- Ichimoku Kinko Hyo – Fornece suporte, resistência e direção de tendência em um único gráfico.
+Examples:
+- Moving Averages (SMA, EMA, WMA, ALMA) – Smooth prices to show trend.
+- MACD (Moving Average Convergence Divergence) – Measures trend strength and direction with moving averages.
+- ADX (Average Directional Index) – Measures trend strength, but not direction.
+- Ichimoku Kinko Hyo – Provides support, resistance, and trend direction in a single chart.
 
+2. Momentum Indicators
 
-2. Indicadores de Momentum (Força)
+Objective: Measure the speed of price changes and identify entry and exit points. 
+How They Work: Compare current and past prices to measure trend strength.
 
-Objetivo: Medir a velocidade das mudanças nos preços e identificar momentos de entrada e saída. 
-Como Funcionam: Comparam preços atuais e passados para medir a força da tendência.
+Examples:
+- RSI (Relative Strength Index) – Measures price movement strength and detects overbought/oversold conditions.
+- Stochastic – Compares closing price with past price range to indicate reversals.
+- CCI (Commodity Channel Index) – Measures price variations relative to a statistical average.
+- Momentum – Measures the rate of price change over time.
 
-Exemplos:
-- RSI (Relative Strength Index) – Mede a força do movimento de preços e detecta sobrecompra/sobrevenda.
-- Estocástico – Compara o preço de fechamento com a faixa de preços passada para indicar reversões.
-- CCI (Commodity Channel Index) – Mede variações de preço em relação a uma média estatística.
-- Momentum – Mede a taxa de mudança do preço ao longo do tempo.
+3. Volume Indicators
 
+Objective: Analyze trading volume to confirm trends and predict reversals. 
+How They Work: Observe if volume increases or decreases relative to prices.
 
-3. Indicadores de Volume
+Examples:
+- OBV (On-Balance Volume) – Measures volume flow based on price ups and downs.
+- Volume Profile – Analyzes where volume was traded at different price levels.
+- MFI (Money Flow Index) – Indicates buying/selling pressure combining price and volume.
+- VWAP (Volume Weighted Average Price) – Calculates volume-weighted average price.
 
-Objetivo: Analisar o volume de negociações para confirmar tendências e prever reversões. 
-Como Funcionam: Observam se o volume aumenta ou diminui em relação aos preços.
+4. Volatility Indicators
 
-Exemplos:
-- OBV (On-Balance Volume) – Mede o fluxo de volume baseado em alta e baixa de preços.
-- Volume Profile – Analisa onde o volume foi negociado em diferentes níveis de preço.
-- MFI (Money Flow Index) – Indica pressão de compra/venda combinando preço e volume.
-- VWAP (Volume Weighted Average Price) – Calcula a média do preço ponderada pelo volume.
+Objective: Measure price variation and unpredictability to anticipate market changes. 
+How They Work: Analyze price range and its variation over time.
 
+Examples:
+- Bollinger Bands – Create a range around price to indicate overbought or oversold conditions.
+- ATR (Average True Range) – Measures market volatility by calculating average price range.
+- Keltner Channels – Works like Bollinger Bands but uses moving averages.
+- VIX (Volatility Index) – Measures implied volatility in the stock market.
 
-4. Indicadores de Volatilidade
+5. Support and Resistance Indicators
 
-Objetivo: Medir a variação e a imprevisibilidade dos preços para antecipar mudanças no mercado. 
-Como Funcionam: Analisam a amplitude dos preços e sua variação ao longo do tempo.
+Objective: Identify levels where prices tend to reverse or consolidate. 
+How They Work: Calculate strategic points based on previous highs, lows, and averages.
 
-Exemplos:
-- Bandas de Bollinger – Criam uma faixa ao redor do preço para indicar se está sobrecomprado ou sobrevendido.
-- ATR (Average True Range) – Mede a volatilidade do mercado ao calcular a média da amplitude dos preços.
-- Keltner Channels – Funciona como as Bandas de Bollinger, mas usa médias móveis.
-- VIX (Índice de Volatilidade) – Mede a volatilidade implícita no mercado de ações.
+Examples:
+- Pivots – Calculate support and resistance points based on previous prices.
+- Fibonacci Retracement – Uses mathematical ratios to identify support and resistance zones.
+- Trend Lines – Identify important psychological levels based on previous highs and lows.
 
+6. Cycle and Statistical Indicators
 
-5. Indicadores de Suporte e Resistência
+Objective: Identify market patterns and cycles that can influence prices. 
+How They Work: Use mathematical calculations to predict market behavior changes.
 
-Objetivo: Identificar níveis onde os preços tendem a reverter ou consolidar. 
-Como Funcionam: Calculam pontos estratégicos com base em máximas, mínimas e médias anteriores.
+Examples:
+- Elliott Wave Theory – Wave pattern analysis to predict up and down cycles.
+- Fourier Transform – Identifies hidden cycles in market prices.
+- Detrended Price Oscillator (DPO) – Removes trends to focus on short-term cycles.
 
-Exemplos:
-- Pivôs – Calculam pontos de suporte e resistência com base nos preços anteriores.
-- Fibonacci Retracement – Usa proporções matemáticas para identificar zonas de suporte e resistência.
-- Linhas de Tendência – Identificam níveis psicológicos importantes baseados em máximas e mínimas anteriores.
+So the idea is to either choose one or two categories and focus on a small, medium, or large timeframe, or do a complete analysis covering all categories.
 
+But besides indicators, we can also optimize the StopLoss and TakeProfit values, which completely changes your strategy, trust me.
 
-6. Indicadores de Ciclos e Estatísticos
-
-Objetivo: Identificar padrões e ciclos de mercado que podem influenciar os preços. 
-Como Funcionam: Utilizam cálculos matemáticos para prever mudanças de comportamento do mercado.
-
-Exemplos:
-- Elliott Wave Theory – Análise de padrões de ondas para prever ciclos de alta e baixa.
-- Fourier Transform – Identifica ciclos ocultos nos preços do mercado.
-- Detrended Price Oscillator (DPO) – Remove tendências para focar nos ciclos de curto prazo.
-
-
-Então a ideia ou escolher uma ou duas categorias e focar em um timeframe pequeno, médio ou grande, ou fazer um completo abrangendo todas as categorias.
-
-Mas além dos indicadores nós também podemos otimizar o valor do StopLoss e do TakeProfit, isso muda completamente a sua estratégia, vai por mim.
-
-Escolhi 4 indicadores básicos como um exemplo: 
+I chose 4 basic indicators as an example:
 
 - MACD
 - RSI
 - OBV
 - ATR
 
-E esse é nosso código de Otimização Quântica. Eu indico a você rodar esse código IBM Quantum.
-
+And this is our Quantum Optimization code. I recommend you run this code on IBM Quantum.
 
 ```py
 import numpy as np
@@ -347,10 +315,10 @@ from qiskit_optimization.algorithms import MinimumEigenOptimizer
 from docplex.mp.model import Model
 import random
 
-# - Lista para armazenar logs das ordens abertas/fechadas
+# - List to store opened/closed orders logs
 trade_log = []
 
-# - Função para buscar dados do BTC/USDT em 5m da Binance
+# - Function to fetch BTC/USDT data in 5m from Binance
 def get_binance_data(symbol="BTCUSDT", interval="5m", limit=500):
     url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}"
     response = requests.get(url).json()
@@ -360,7 +328,7 @@ def get_binance_data(symbol="BTCUSDT", interval="5m", limit=500):
     df['time'] = pd.to_datetime(df['time'], unit='ms')
     return df
 
-# - Calcula indicadores técnicos
+# - Calculate technical indicators
 def calculate_indicators(df, macd_short=12, macd_long=26, macd_signal=9, rsi_length=14, atr_length=14):
     df['MACD'] = ta.trend.macd(df['close'], window_slow=macd_long, window_fast=macd_short)
     df['RSI'] = ta.momentum.RSIIndicator(df['close'], window=rsi_length).rsi()
@@ -368,94 +336,94 @@ def calculate_indicators(df, macd_short=12, macd_long=26, macd_signal=9, rsi_len
     df['ATR'] = ta.volatility.AverageTrueRange(df['high'], df['low'], df['close'], window=atr_length).average_true_range()
     return df
 
-# - Simulação da estratégia com log das operações
+# - Strategy simulation with log of operations
 def simulate(params, df):
-    """ Simula a estratégia de trading e retorna o lucro final """
-    balance = 1000  # Saldo inicial fictício
-    position = None  # Indica se estamos comprados ou vendidos
-    entry_price = None  # Preço de entrada da operação
+    """ Simulates the trading strategy and returns final profit """
+    balance = 1000  # Initial fictional balance
+    position = None  # Indicates if we are long or short
+    entry_price = None  # Operation entry price
 
     for i in range(1, len(df)):
         time = df.iloc[i]['time']
         price = df.iloc[i]['close']
 
-        # - Regras de entrada
+        # - Entry rules
         if df.iloc[i]['MACD'] > df.iloc[i-1]['MACD'] and df.iloc[i]['RSI'] < 30:
-            if position is None:  # Compra
+            if position is None:  # Buy
                 position = "LONG"
                 entry_price = price
                 trade_log.append({
-                    "Data Entrada": time,
-                    "Lado": position,
-                    "Preço Entrada": entry_price,
+                    "Entry Date": time,
+                    "Side": position,
+                    "Entry Price": entry_price,
                     "MACD": params['MACD_Short'],
                     "RSI": params['RSI_Length'],
                     "ATR": params['ATR_Length'],
                 })
 
         elif df.iloc[i]['MACD'] < df.iloc[i-1]['MACD'] and df.iloc[i]['RSI'] > 70:
-            if position is None:  # Venda
+            if position is None:  # Sell
                 position = "SHORT"
                 entry_price = price
                 trade_log.append({
-                    "Data Entrada": time,
-                    "Lado": position,
-                    "Preço Entrada": entry_price,
+                    "Entry Date": time,
+                    "Side": position,
+                    "Entry Price": entry_price,
                     "MACD": params['MACD_Short'],
                     "RSI": params['RSI_Length'],
                     "ATR": params['ATR_Length'],
                 })
 
-        # - Regras de saída
+        # - Exit rules
         if position == "LONG" and df.iloc[i]['RSI'] > 50:
             profit = (price - entry_price) / entry_price * 100
-            trade_log[-1].update({"Data Fechamento": time, "Preço Fechamento": price, "Lucro (%)": profit})
+            trade_log[-1].update({"Close Date": time, "Close Price": price, "Profit (%)": profit})
             balance += balance * (profit / 100)
             position = None
 
         elif position == "SHORT" and df.iloc[i]['RSI'] < 50:
             profit = (entry_price - price) / entry_price * 100
-            trade_log[-1].update({"Data Fechamento": time, "Preço Fechamento": price, "Lucro (%)": profit})
+            trade_log[-1].update({"Close Date": time, "Close Price": price, "Profit (%)": profit})
             balance += balance * (profit / 100)
             position = None
 
     return {"FinalProfit": balance}
 
-# - Criando um problema QUBO para otimizar os indicadores
+# - Creating a QUBO problem to optimize indicators
 def create_qubo_problem():
     mdl = Model('QAOA_Trading')
 
-    # - Variáveis de ajuste para cada indicador
+    # - Adjustment variables for each indicator
     macd_short = mdl.integer_var(lb=5, ub=20, name='MACD_Short')
     macd_long = mdl.integer_var(lb=20, ub=50, name='MACD_Long')
     macd_signal = mdl.integer_var(lb=5, ub=15, name='MACD_Signal')
     rsi_length = mdl.integer_var(lb=7, ub=21, name='RSI_Length')
     atr_length = mdl.integer_var(lb=7, ub=21, name='ATR_Length')
 
-    # - Função objetivo: Maximizar o lucro final da estratégia
+    # - Objective function: Maximize final strategy profit
     mdl.maximize(
         0.4 * macd_short + 0.3 * macd_long + 0.2 * macd_signal +
         0.5 * rsi_length + 0.3 * atr_length
     )
 
-    # - Conversão para QUBO
+    # - Conversion to QUBO
     qp = QuadraticProgram()
     qp.from_docplex(mdl)
     return qp
 
-# - Função para rodar o QAOA e encontrar a melhor configuração dos indicadores
+# - Function to run QAOA and find best indicator configuration
 def run_qaoa(df, iterations=5):
     qp = create_qubo_problem()
 
-    # - Configurar QAOA
+    # - Configure QAOA
     estimator = Estimator()
     qaoa = QAOA(estimator, optimizer=COBYLA(), reps=iterations)
     optimizer = MinimumEigenOptimizer(qaoa)
 
-    # - Executar o QAOA
+    # - Execute QAOA
     result = optimizer.solve(qp)
 
-    # - Parâmetros ótimos encontrados
+    # - Best parameters found
     best_params = {
         "MACD_Short": result.x[0],
         "MACD_Long": result.x[1],
@@ -464,37 +432,35 @@ def run_qaoa(df, iterations=5):
         "ATR_Length": result.x[4]
     }
 
-    # - Simular a estratégia com os melhores parâmetros
+    # - Simulate strategy with best parameters
     simulation_result = simulate(best_params, df)
     
-    # - Exibir o relatório final da estratégia
-    print("\n📌 **Melhores Parâmetros Encontrados:**", best_params)
-    print("📈 **Lucro Final Simulado:**", simulation_result["FinalProfit"])
+    # - Display final strategy report
+    print("\n📌 **Best Parameters Found:**", best_params)
+    print("📈 **Simulated Final Profit:**", simulation_result["FinalProfit"])
     
-    # - Exibir logs das operações
+    # - Display order logs
     trade_df = pd.DataFrame(trade_log)
-    print("\n📊 **Relatório das Ordens:**")
+    print("\n📊 **Orders Report:**")
     print(trade_df)
     
-    # - Mostrar gráfico das ordens
-    trade_df.plot(x="Data Entrada", y="Lucro (%)", kind="bar", title="Lucro por Trade")
+    # - Show orders graph
+    trade_df.plot(x="Entry Date", y="Profit (%)", kind="bar", title="Profit per Trade")
     plt.show()
 ```
-
 
 Log:
 
 ```
-✅ 1000 candles carregados com sucesso!
-🚀 Iniciando QAOA...
-🔄 Executando otimização...
+✅ 1000 candles loaded successfully!
+🚀 Starting QAOA...
+🔄 Running optimization...
 
-**Melhores Parâmetros Encontrados:** {'MACD_Short': np.float64(1.0), 'MACD_Long': np.float64(1.0), 'MACD_Signal': np.float64(1.0), 'RSI_Length': np.float64(1.0), 'ATR_Length': np.float64(1.0)}
-📈 **Lucro Final Simulado:** 1003.8771479209456
+**Best Parameters Found:** {'MACD_Short': np.float64(1.0), 'MACD_Long': np.float64(1.0), 'MACD_Signal': np.float64(1.0), 'RSI_Length': np.float64(1.0), 'ATR_Length': np.float64(1.0)}
+📈 **Simulated Final Profit:** 1003.8771479209456
 ```
 
-
-De bonus vou te dar a implementação com o take Profit e o Stop Loss dinamicos:
+As a bonus, I'll give you the implementation with dynamic Take Profit and Stop Loss:
 
 ```py
 import numpy as np
@@ -513,26 +479,26 @@ from qiskit_optimization.converters import QuadraticProgramToQubo
 from docplex.mp.model import Model
 import random
 
-# 🔹 Lista para armazenar logs das ordens abertas/fechadas
+# 🔹 List to store opened/closed orders logs
 trade_log = []
 
-# 🔹 Função para buscar dados do BTC/USDT em 5m da Binance
+# 🔹 Function to fetch BTC/USDT data in 5m from Binance
 def get_binance_data(symbol="BTCUSDT", interval="5m", limit=1000):
     url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}"
     try:
         response = requests.get(url, timeout=10)
-        response.raise_for_status()  # Levanta erro se a resposta não for 200
+        response.raise_for_status()  # Raises error if response is not 200
         df = pd.DataFrame(response.json(), columns=['time', 'open', 'high', 'low', 'close', 'volume',
                                                      'close_time', 'qav', 'trades', 'taker_base', 'taker_quote', 'ignore'])
         df = df[['time', 'open', 'high', 'low', 'close', 'volume']].astype(float)
         df['time'] = pd.to_datetime(df['time'], unit='ms')
-        print(f"✅ {len(df)} candles carregados com sucesso!")
+        print(f"✅ {len(df)} candles loaded successfully!")
         return df
     except requests.exceptions.RequestException as e:
-        print(f"❌ Erro ao buscar dados da Binance: {e}")
+        print(f"❌ Error fetching data from Binance: {e}")
         return None
 
-# 🔹 Calcula indicadores técnicos
+# 🔹 Calculate technical indicators
 def calculate_indicators(df, macd_short=12, macd_long=26, macd_signal=9, rsi_length=14, atr_length=14):
     df['MACD'] = ta.trend.macd(df['close'], window_slow=macd_long, window_fast=macd_short)
     df['RSI'] = ta.momentum.RSIIndicator(df['close'], window=rsi_length).rsi()
@@ -540,12 +506,12 @@ def calculate_indicators(df, macd_short=12, macd_long=26, macd_signal=9, rsi_len
     df['ATR'] = ta.volatility.AverageTrueRange(df['high'], df['low'], df['close'], window=atr_length).average_true_range()
     return df
 
-# 🔹 Simulação da estratégia com TP e SL dinâmicos
+# 🔹 Strategy simulation with dynamic TP and SL
 def simulate(params, df):
-    """ Simula a estratégia de trading e retorna o lucro final com TP e SL dinâmicos """
-    balance = 1000  # Saldo inicial fictício
-    position = None  # Indica se estamos comprados ou vendidos
-    entry_price = None  # Preço de entrada da operação
+    """ Simulates trading strategy and returns final profit with dynamic TP and SL """
+    balance = 1000  # Initial fictional balance
+    position = None  # Indicates if we are long or short
+    entry_price = None  # Operation entry price
     take_profit = None
     stop_loss = None
 
@@ -554,17 +520,17 @@ def simulate(params, df):
         price = df.iloc[i]['close']
         atr = df.iloc[i]['ATR']
 
-        # 🔹 Regras de entrada
+        # 🔹 Entry rules
         if position is None:
             if df.iloc[i]['MACD'] > df.iloc[i-1]['MACD'] and df.iloc[i]['RSI'] < 30:
                 position = "LONG"
                 entry_price = price
-                take_profit = price + (atr * 2)  # TP dinâmico baseado no ATR
-                stop_loss = price - (atr * 1.5)  # SL dinâmico baseado no ATR
+                take_profit = price + (atr * 2)  # Dynamic TP based on ATR
+                stop_loss = price - (atr * 1.5)  # Dynamic SL based on ATR
                 trade_log.append({
-                    "Data Entrada": time,
-                    "Lado": position,
-                    "Preço Entrada": entry_price,
+                    "Entry Date": time,
+                    "Side": position,
+                    "Entry Price": entry_price,
                     "Take Profit": take_profit,
                     "Stop Loss": stop_loss,
                     "MACD": params['MACD_Short'],
@@ -578,9 +544,9 @@ def simulate(params, df):
                 take_profit = price - (atr * 2)
                 stop_loss = price + (atr * 1.5)
                 trade_log.append({
-                    "Data Entrada": time,
-                    "Lado": position,
-                    "Preço Entrada": entry_price,
+                    "Entry Date": time,
+                    "Side": position,
+                    "Entry Price": entry_price,
                     "Take Profit": take_profit,
                     "Stop Loss": stop_loss,
                     "MACD": params['MACD_Short'],
@@ -588,18 +554,18 @@ def simulate(params, df):
                     "ATR": atr,
                 })
 
-        # 🔹 Regras de saída (TP ou SL)
+        # 🔹 Exit rules (TP or SL)
         if position == "LONG":
             if price >= take_profit or price <= stop_loss:
                 profit = (price - entry_price) / entry_price * 100
-                trade_log[-1].update({"Data Fechamento": time, "Preço Fechamento": price, "Lucro (%)": profit})
+                trade_log[-1].update({"Close Date": time, "Close Price": price, "Profit (%)": profit})
                 balance += balance * (profit / 100)
                 position = None
 
         elif position == "SHORT":
             if price <= take_profit or price >= stop_loss:
                 profit = (entry_price - price) / entry_price * 100
-                trade_log[-1].update({"Data Fechamento": time, "Preço Fechamento": price, "Lucro (%)": profit})
+                trade_log[-1].update({"Close Date": time, "Close Price": price, "Profit (%)": profit})
                 balance += balance * (profit / 100)
                 position = None
 
@@ -629,22 +595,22 @@ def run_qaoa(df, iterations=5):
     qubo_converter = QuadraticProgramToQubo()
     qubo_problem = qubo_converter.convert(qp)
 
-    print("🚀 Iniciando QAOA...")
+    print("🚀 Starting QAOA...")
     sampler = Sampler()
     qaoa = QAOA(sampler, optimizer=COBYLA(), reps=iterations)
     optimizer = MinimumEigenOptimizer(qaoa)
 
-    print("🔄 Executando otimização...")
+    print("🔄 Running optimization...")
     result = optimizer.solve(qubo_problem)
 
     
     best_params = {qp.variables[i].name: result.x[i] for i in range(len(result.x))}
 
-    print("\n📌 **Melhores Parâmetros Encontrados:**", best_params)
+    print("\n📌 **Best Parameters Found:**", best_params)
 
     simulation_result = simulate(best_params, df)
 
-    print("📈 **Lucro Final Simulado:**", simulation_result["FinalProfit"])
+    print("📈 **Simulated Final Profit:**", simulation_result["FinalProfit"])
 
 
 
@@ -655,13 +621,8 @@ if df is not None:
 
 ```
 
-![até mais](https://i.imgur.com/YNns6u1.png)
+![see you](https://i.imgur.com/YNns6u1.png)
 
-
-Bom agora é só você se aventurar em testar várias combinações de indicadores.
-
-
-
-
+Now you can just venture into testing various indicator combinations.
 
 ![Quantum Hive Fund](https://i.imgur.com/NmGXqh1.png)
