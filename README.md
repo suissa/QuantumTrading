@@ -47,16 +47,18 @@ O operador Pauli-X (𝑋) age como um interruptor, trocando os estados dos qubit
 
 Isso significa que o Hamiltoniano de Mixer age mudando os valores das variáveis no sistema, permitindo a exploração de novas soluções.
 
-🔹 Hamiltoniano de Mixer: O Mixer permite a exploração do espaço de soluções. Ele é definido como:
+🔹 Hamiltoniano de Mixer: O Mixer permite a exploração do espaço de soluções. Ele utilizia o Pauli-Z.
 
-onde:
+Ele é definido como:
 
 ![Hamiltoniano Mixer](https://quicklatex.com/cache3/47/ql_075ae5b341295dfd833e1ad53a19c447_l3.png)
+
 
 
 𝑋𝑖: é o operador de Pauli-X aplicado ao qubit 
 🔹 Este Hamiltoniano gira os qubits, permitindo explorar diferentes configurações.
 
+A fórmula calcula a energia total de uma configuração de variáveis, levando em conta tanto interações entre variáveis quanto o efeito de cada variável isoladamente, ajudando o QAOA a encontrar a melhor solução possível para um problema de otimização.
 
 ## Construção do Circuito Quântico
 
@@ -78,7 +80,8 @@ O circuito QAOA é montado aplicando camadas alternadas de 𝐻C e 𝐻M, ajusta
 🔹 Ajustamos os parâmetros γ,β usando um otimizador clássico (ex.: COBYLA, SPSA, Nelder-Mead).
 🔹 Repetimos o processo até encontrar o melhor valor.
 
-
+### O que é o Operador Pauli-Z?
+O Pauli-Z (𝑍) é um dos três operadores de Pauli, fundamentais na mecânica quântica e na computação quântica. Ele é representado pela matriz de Pauli-Z:
 
 ## Exemplo de Implementação no Qiskit
 
@@ -212,54 +215,3 @@ Exemplos:
 Então a ideia ou escolher uma ou duas categorias e focar em um timeframe pequeno, médio ou grande, ou fazer um completo abrangendo todas as categorias.
 
 Mas além dos indicadores nós também podemos otimizar o valor do StopLoss e do TakeProfit, isso muda completamente a sua estratégia, vai por mim.
-
-
-
-
-```go
-func runQAOA(strategy Strategy, candles []Candle, initialParams map[string]float64, iterations int) map[string]float64 {
-	bestParams := make(map[string]float64)
-	copyParams(bestParams, initialParams)
-
-	paramRanges := strategy.GetParamRanges()
-	bestFitness := -math.MaxFloat64
-
-	// Define os parâmetros do QAOA
-	temperature := 1.0
-	coolingRate := 0.95
-
-	strategy.SetParams(initialParams)
-	result := strategy.Simulate(candles)
-	bestFitness = calculateFitness(result)
-
-	for iter := 0; iter < iterations; iter++ {
-		// Gera uma nova solução com perturbação quântica
-		newParams := make(map[string]float64)
-		for param, value := range bestParams {
-			rang := paramRanges[param]
-			// Aplica perturbação quântica
-			delta := (rang.Max - rang.Min) * temperature * (rand.Float64()*2 - 1)
-			newValue := value + delta
-			newParams[param] = math.Max(math.Min(newValue, rang.Max), rang.Min)
-		}
-
-		// Avalia a nova solução
-		strategy.SetParams(newParams)
-		result := strategy.Simulate(candles)
-		newFitness := calculateFitness(result)
-
-		// Aceita ou rejeita a nova solução baseado na probabilidade quântica
-		if newFitness > bestFitness || rand.Float64() < math.Exp((newFitness-bestFitness)/temperature) {
-			bestFitness = newFitness
-			copyParams(bestParams, newParams)
-		}
-
-		// Reduz a temperatura
-		temperature *= coolingRate
-
-		fmt.Printf("Iteração QAOA %d/%d 🔹 Melhor Fitness: %.2f\n", iter+1, iterations, bestFitness)
-	}
-
-	return bestParams
-}
-```
