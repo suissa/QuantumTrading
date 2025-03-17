@@ -476,9 +476,185 @@ def run_qaoa(df, iterations=5):
     # - Mostrar gráfico das ordens
     trade_df.plot(x="Data Entrada", y="Lucro (%)", kind="bar", title="Lucro por Trade")
     plt.show()
-
-# - Baixar dados do BTC/USDT (5m) e rodar o QAOA
-df = get_binance_data()
-df = calculate_indicators(df)
-run_qaoa(df, iterations=10)
 ```
+
+
+Log:
+
+```
+✅ 1000 candles carregados com sucesso!
+🚀 Iniciando QAOA...
+🔄 Executando otimização...
+
+**Melhores Parâmetros Encontrados:** {'MACD_Short': np.float64(1.0), 'MACD_Long': np.float64(1.0), 'MACD_Signal': np.float64(1.0), 'RSI_Length': np.float64(1.0), 'ATR_Length': np.float64(1.0)}
+📈 **Lucro Final Simulado:** 1003.8771479209456
+```
+
+
+De bonus vou te dar a implementação com o take Profit e o Stop Loss dinamicos:
+
+```py
+import numpy as np
+import requests
+import pandas as pd
+import ta
+import matplotlib.pyplot as plt
+from datetime import datetime
+from qiskit_optimization.translators import from_docplex_mp
+from qiskit_optimization import QuadraticProgram
+from qiskit_optimization.algorithms import MinimumEigenOptimizer
+from qiskit_algorithms import QAOA
+from qiskit.primitives import Sampler
+from qiskit_algorithms.optimizers import COBYLA
+from qiskit_optimization.converters import QuadraticProgramToQubo
+from docplex.mp.model import Model
+import random
+
+# 🔹 Lista para armazenar logs das ordens abertas/fechadas
+trade_log = []
+
+# 🔹 Função para buscar dados do BTC/USDT em 5m da Binance
+def get_binance_data(symbol="BTCUSDT", interval="5m", limit=1000):
+    url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # Levanta erro se a resposta não for 200
+        df = pd.DataFrame(response.json(), columns=['time', 'open', 'high', 'low', 'close', 'volume',
+                                                     'close_time', 'qav', 'trades', 'taker_base', 'taker_quote', 'ignore'])
+        df = df[['time', 'open', 'high', 'low', 'close', 'volume']].astype(float)
+        df['time'] = pd.to_datetime(df['time'], unit='ms')
+        print(f"✅ {len(df)} candles carregados com sucesso!")
+        return df
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Erro ao buscar dados da Binance: {e}")
+        return None
+
+# 🔹 Calcula indicadores técnicos
+def calculate_indicators(df, macd_short=12, macd_long=26, macd_signal=9, rsi_length=14, atr_length=14):
+    df['MACD'] = ta.trend.macd(df['close'], window_slow=macd_long, window_fast=macd_short)
+    df['RSI'] = ta.momentum.RSIIndicator(df['close'], window=rsi_length).rsi()
+    df['OBV'] = ta.volume.OnBalanceVolumeIndicator(df['close'], df['volume']).on_balance_volume()
+    df['ATR'] = ta.volatility.AverageTrueRange(df['high'], df['low'], df['close'], window=atr_length).average_true_range()
+    return df
+
+# 🔹 Simulação da estratégia com TP e SL dinâmicos
+def simulate(params, df):
+    """ Simula a estratégia de trading e retorna o lucro final com TP e SL dinâmicos """
+    balance = 1000  # Saldo inicial fictício
+    position = None  # Indica se estamos comprados ou vendidos
+    entry_price = None  # Preço de entrada da operação
+    take_profit = None
+    stop_loss = None
+
+    for i in range(1, len(df)):
+        time = df.iloc[i]['time']
+        price = df.iloc[i]['close']
+        atr = df.iloc[i]['ATR']
+
+        # 🔹 Regras de entrada
+        if position is None:
+            if df.iloc[i]['MACD'] > df.iloc[i-1]['MACD'] and df.iloc[i]['RSI'] < 30:
+                position = "LONG"
+                entry_price = price
+                take_profit = price + (atr * 2)  # TP dinâmico baseado no ATR
+                stop_loss = price - (atr * 1.5)  # SL dinâmico baseado no ATR
+                trade_log.append({
+                    "Data Entrada": time,
+                    "Lado": position,
+                    "Preço Entrada": entry_price,
+                    "Take Profit": take_profit,
+                    "Stop Loss": stop_loss,
+                    "MACD": params['MACD_Short'],
+                    "RSI": params['RSI_Length'],
+                    "ATR": atr,
+                })
+
+            elif df.iloc[i]['MACD'] < df.iloc[i-1]['MACD'] and df.iloc[i]['RSI'] > 70:
+                position = "SHORT"
+                entry_price = price
+                take_profit = price - (atr * 2)
+                stop_loss = price + (atr * 1.5)
+                trade_log.append({
+                    "Data Entrada": time,
+                    "Lado": position,
+                    "Preço Entrada": entry_price,
+                    "Take Profit": take_profit,
+                    "Stop Loss": stop_loss,
+                    "MACD": params['MACD_Short'],
+                    "RSI": params['RSI_Length'],
+                    "ATR": atr,
+                })
+
+        # 🔹 Regras de saída (TP ou SL)
+        if position == "LONG":
+            if price >= take_profit or price <= stop_loss:
+                profit = (price - entry_price) / entry_price * 100
+                trade_log[-1].update({"Data Fechamento": time, "Preço Fechamento": price, "Lucro (%)": profit})
+                balance += balance * (profit / 100)
+                position = None
+
+        elif position == "SHORT":
+            if price <= take_profit or price >= stop_loss:
+                profit = (entry_price - price) / entry_price * 100
+                trade_log[-1].update({"Data Fechamento": time, "Preço Fechamento": price, "Lucro (%)": profit})
+                balance += balance * (profit / 100)
+                position = None
+
+    return {"FinalProfit": balance}
+
+def create_qubo_problem():
+    mdl = Model('QAOA_Trading')
+
+    macd_short = mdl.binary_var(name='MACD_Short')
+    macd_long = mdl.binary_var(name='MACD_Long')
+    macd_signal = mdl.binary_var(name='MACD_Signal')
+    rsi_length = mdl.binary_var(name='RSI_Length')
+    atr_length = mdl.binary_var(name='ATR_Length')
+
+    mdl.maximize(
+        10 * macd_short + 15 * macd_long + 7 * macd_signal +
+        12 * rsi_length + 9 * atr_length
+    )
+
+    problem = from_docplex_mp(mdl)
+
+    return problem
+
+def run_qaoa(df, iterations=5):
+    qp = create_qubo_problem()
+
+    qubo_converter = QuadraticProgramToQubo()
+    qubo_problem = qubo_converter.convert(qp)
+
+    print("🚀 Iniciando QAOA...")
+    sampler = Sampler()
+    qaoa = QAOA(sampler, optimizer=COBYLA(), reps=iterations)
+    optimizer = MinimumEigenOptimizer(qaoa)
+
+    print("🔄 Executando otimização...")
+    result = optimizer.solve(qubo_problem)
+
+    
+    best_params = {qp.variables[i].name: result.x[i] for i in range(len(result.x))}
+
+    print("\n📌 **Melhores Parâmetros Encontrados:**", best_params)
+
+    simulation_result = simulate(best_params, df)
+
+    print("📈 **Lucro Final Simulado:**", simulation_result["FinalProfit"])
+
+
+
+df = get_binance_data()
+if df is not None:
+    df = calculate_indicators(df)
+    run_qaoa(df, iterations=10)
+
+```
+
+
+Bom agora é só você se aventurar em testar várias combinações de indicadores.
+
+
+![](https://i.imgur.com/EGjiCX4.png)
+
