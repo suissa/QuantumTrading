@@ -24,6 +24,26 @@ O QAOA tem três partes principais:
 - Hamiltoniano de Mixer: Explora possíveis soluções.
 - Parâmetros Variacionais: Ajustam a evolução do circuito.
 
+## Definição dos Hamiltonianos
+
+Os dois Hamiltonianos são aplicados iterativamente no circuito quântico.
+
+- Hamiltoniano de Custo: Este Hamiltoniano codifica a função objetivo do problema. Se estivermos resolvendo um problema QUBO, é definido como:
+onde:
+
+𝑄𝑖𝑗: são os coeficientes da matriz QUBO.
+𝑍𝑖: é o operador de Pauli-Z aplicado ao qubit 
+- O estado de menor energia do sistema quântico representará a melhor solução.
+
+- Hamiltoniano de Mixer: O Mixer permite a exploração do espaço de soluções. Ele é definido como:
+
+
+onde:
+
+𝑋𝑖: é o operador de Pauli-X aplicado ao qubit 
+- Este Hamiltoniano gira os qubits, permitindo explorar diferentes configurações.
+
+--- 
 Uma das primeiras coisas que você pode fazer antes de começar a *tradear* é escolher um grupo de indicadores, no mundo da análise técnica nós temos 6 categorias de indicadores:
 
 1. Indicadores de Tendência
