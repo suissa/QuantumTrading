@@ -60,6 +60,22 @@ O circuito QAOA é montado aplicando camadas alternadas de 𝐻C e 𝐻M, ajusta
 
 
 
+1. Inicialização
+- Preparamos um estado inicial uniforme superposto
+
+2. Aplicação do Hamiltoniano de Custo
+- Aplicamos gates de fase controladas, codificando a função objetivo no sistema quântico.
+
+3. Aplicação do Hamiltoniano de Mixer
+- Aplicamos rotações, permitindo que o sistema explore diferentes soluções.
+
+4. Medição
+- O circuito é medido em base computacional ∣0⟩,∣1⟩ para encontrar a solução ótima.
+
+5. Otimização Clássica
+- Ajustamos os parâmetros γ,β usando um otimizador clássico (ex.: COBYLA, SPSA, Nelder-Mead).
+- Repetimos o processo até encontrar o melhor valor.
+
 
 
 
