@@ -35,6 +35,16 @@ onde:
 𝑍𝑖: é o operador de Pauli-Z aplicado ao qubit 
 - O estado de menor energia do sistema quântico representará a melhor solução.
 
+### O que o Operador Pauli-X faz?
+O operador Pauli-X (𝑋) age como um interruptor, trocando os estados dos qubits:
+
+- Se um qubit estiver no estado ∣0⟩, o Pauli-X o transforma em ∣1⟩.
+- Se um qubit estiver no estado ∣1⟩, o Pauli-X o transforma em ∣0⟩.
+
+Isso significa que o Hamiltoniano de Mixer age mudando os valores das variáveis no sistema, permitindo a exploração de novas soluções.
+
+
+
 - Hamiltoniano de Mixer: O Mixer permite a exploração do espaço de soluções. Ele é definido como:
 
 
@@ -42,6 +52,17 @@ onde:
 
 𝑋𝑖: é o operador de Pauli-X aplicado ao qubit 
 - Este Hamiltoniano gira os qubits, permitindo explorar diferentes configurações.
+
+
+
+Construção do Circuito Quântico
+O circuito QAOA é montado aplicando camadas alternadas de 𝐻C e 𝐻M, ajustadas pelos parâmetros variacionais (𝛾,𝛽).
+
+
+
+
+
+
 
 --- 
 Uma das primeiras coisas que você pode fazer antes de começar a *tradear* é escolher um grupo de indicadores, no mundo da análise técnica nós temos 6 categorias de indicadores:
