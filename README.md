@@ -4,6 +4,26 @@ Nesse repositório eu vou repassar os algoritmos quânticos que utilizo para Tra
 
 ## QAOA (Quantum Approximate Optimization Algorithm)
 
+O QAOA (Quantum Approximate Optimization Algorithm) é um algoritmo híbrido quântico-clássico desenvolvido para resolver problemas de otimização combinatória, como problemas de portfólio financeiro, roteamento, seleção de trading e outros. Ele funciona aplicando camadas alternadas de operações quânticas para aproximar a melhor solução possível.
+
+## Fundamentos do QAOA
+O QAOA é projetado para resolver problemas de QUBO (Quadratic Unconstrained Binary Optimization) e problemas modelados como um Hamiltoniano de Ising, que podem ser descritos por:
+Estrutura do Algoritmo
+O QAOA combina computação quântica e otimização clássica. Ele segue estes passos:
+
+1️⃣ Definir o problema como um Hamiltoniano (Hamiltoniano de Custo).
+2️⃣ Escolher uma Hamiltoniana de Mixer para explorar o espaço de soluções.
+3️⃣ Construir um circuito quântico parametrizado com camadas alternadas de gates baseadas nesses Hamiltonianos.
+4️⃣ Executar o circuito e medir os resultados, ajustando os parâmetros com um otimizador clássico.
+
+## Componentes Chave do Algoritmo
+
+O QAOA tem três partes principais:
+
+- Hamiltoniano de Custo: Representa o problema de otimização.
+- Hamiltoniano de Mixer: Explora possíveis soluções.
+- Parâmetros Variacionais: Ajustam a evolução do circuito.
+
 Uma das primeiras coisas que você pode fazer antes de começar a *tradear* é escolher um grupo de indicadores, no mundo da análise técnica nós temos 6 categorias de indicadores:
 
 1. Indicadores de Tendência
