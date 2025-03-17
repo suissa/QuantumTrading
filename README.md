@@ -661,8 +661,7 @@ if df is not None:
 Bom agora é só você se aventurar em testar várias combinações de indicadores.
 
 
-![](https://i.imgur.com/EGjiCX4.png)
 
 
 
-![Quantum Hive Fund]([https://i.imgur.com/0gW8QpP.png](https://i.imgur.com/mzgovPz.png))
+![Quantum Hive Fund](https://i.imgur.com/0gW8QpP.png)
