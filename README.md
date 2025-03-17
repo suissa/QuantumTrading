@@ -47,13 +47,11 @@ O operador Pauli-X (𝑋) age como um interruptor, trocando os estados dos qubit
 
 Isso significa que o Hamiltoniano de Mixer age mudando os valores das variáveis no sistema, permitindo a exploração de novas soluções.
 
-🔹 Hamiltoniano de Mixer: O Mixer permite a exploração do espaço de soluções. Ele utilizia o Pauli-Z.
+🔹 Hamiltoniano de Mixer: O Mixer permite a exploração do espaço de soluções. 
 
 Ele é definido como:
 
 ![Hamiltoniano Mixer](https://quicklatex.com/cache3/47/ql_075ae5b341295dfd833e1ad53a19c447_l3.png)
-
-
 
 𝑋𝑖: é o operador de Pauli-X aplicado ao qubit 
 🔹 Este Hamiltoniano gira os qubits, permitindo explorar diferentes configurações.
@@ -82,6 +80,49 @@ O circuito QAOA é montado aplicando camadas alternadas de 𝐻C e 𝐻M, ajusta
 
 ### O que é o Operador Pauli-Z?
 O Pauli-Z (𝑍) é um dos três operadores de Pauli, fundamentais na mecânica quântica e na computação quântica. Ele é representado pela matriz de Pauli-Z:
+[ 1 0
+  0−1]
+  
+Esse operador age sobre qubits, alterando seu estado de uma maneira específica.
+
+🔹 Como o Pauli-Z funciona na computação quântica?
+O operador Z não altera o estado ∣0⟩, mas inverte o sinal do estado ∣1⟩:
+
+Se aplicado ao qubit no estado ∣0⟩, o qubit permanece igual: Z∣0⟩ = ∣0⟩
+Se aplicado ao qubit no estado ∣1⟩, o qubit muda de sinal: Z∣1⟩ = −∣1⟩
+Isso significa que o operador introduz uma fase negativa no qubit ∣1⟩, mas não afeta ∣0⟩.
+
+🔹 Interpretação Física do Pauli-Z
+O operador Pauli-Z está diretamente relacionado ao eixo Z da esfera de Bloch, que representa os estados quânticos geometricamente.
+
+- ∣0⟩ está no topo da esfera de Bloch e não é afetado pelo Pauli-Z.
+- ∣1⟩ está na parte inferior da esfera de Bloch e recebe um fator de fase -1 quando o Pauli-Z é aplicado.
+
+Isso significa que o operador Pauli-Z reflete os qubits em torno do eixo Z.
+
+#### Uso do Pauli-Z na Computação Quântica
+
+O operador Pauli-Z aparece em vários contextos, incluindo:
+
+- Correção de Erros Quânticos: o Pauli-Z pode ser usado para detectar e corrigir certos tipos de erros em qubits.
+
+
+#### Medições em Circuitos Quânticos
+
+Muitas medições na computação quântica são feitas na base Z, onde o Pauli-Z ajuda a distinguir entre ∣0⟩ e ∣1⟩.
+
+
+#### QAOA e Modelos de Ising
+
+No Quantum Approximate Optimization Algorithm (QAOA), o operador Pauli-Z é usado para definir restrições e interações entre qubits, modelando problemas como otimização financeira e problemas logísticos.
+4️⃣ Portas de Fase (RZ Gate)
+
+O operador Pauli-Z pode ser visto como um caso especial da porta RZ(θ), usada para adicionar fases em circuitos quânticos.
+
+No QAOA, ele aparece na Hamiltoniana de Custo para definir relações entre variáveis, ajudando a resolver problemas como trading e portfólio financeiro.
+
+
+
 
 ## Exemplo de Implementação no Qiskit
 
@@ -139,8 +180,61 @@ O QAOA pode ser usado para otimizar:
 🔹 Roteamento Logístico → Encontrar o caminho mais eficiente para entregas.
 🔹 Alocação de Recursos → Escolher a melhor distribuição de investimentos.
 
+| Algoritmo	| Características |
+------------|-----------------|
+| QAOA	| Aproxima soluções combinatórias usando circuitos quânticos |
+| Branch & Bound	| Divide o problema em subproblemas e explora soluções |
+| Algoritmos Genéticos	| Evolui soluções através de mutação e seleção |
+| Programação Linear	| Resolve problemas com restrições lineares |
+
+
+
+
+Como o QAOA sabe que encontrou uma solução otimizada?
+O QAOA (Quantum Approximate Optimization Algorithm) otimiza um problema baseado na minimização de energia da Hamiltoniana de Custo (𝐻𝐶). Mas como ele sabe que está otimizado? Ele segue três critérios principais:
+
+
+1. Mede os qubits e verifica qual estado aparece com mais frequência
+
+No final da execução do circuito quântico, os qubits são medidos. 
+O QAOA repete o experimento várias vezes e registra quais estados aparecem com mais frequência.
+
+🔹 Se um determinado estado aparece muitas vezes, isso indica que ele tem a menor energia possível → significa que ele é provavelmente a melhor solução.
+
+
+2. Mede a energia da solução
+
+O QAOA calcula a energia associada ao estado mais frequente.
+
+A energia é dada por:
+
+![](https://quicklatex.com/cache3/2c/ql_d51cd2b3088c1d8af440aaf90200652c_l3.png)
+
+3. O Algoritmo Variacional Ajusta os Parâmetros
+4. 
+O QAOA usa otimização clássica para encontrar os melhores valores de 𝛾 e 𝛽, que controlam a evolução do circuito.
+
+- O circuito começa com um chute inicial de 𝛾 e 𝛽.
+- Executa e mede os qubits.
+- Calcula a energia do estado encontrado.
+- Ajusta 𝛾 e 𝛽 para reduzir ainda mais a energia.
+- Repete até encontrar a melhor solução.
+
+🔹 Ele otimiza como um jogador de xadrez que aprende com seus erros: se o movimento anterior não foi bom, ele tenta outro até encontrar a estratégia vencedora.
+
+Como saber se a solução encontrada é boa?
+
+🔹 O estado mais frequente entre as medições indica a melhor solução.
+🔹 Se a energia do sistema for mínima, então essa é provavelmente a melhor configuração possível.
+🔹 O otimizador clássico ajusta os parâmetros até que a energia não diminua mais.
+🔹 Comparamos com soluções clássicas para ver se a resposta do QAOA bate com soluções exatas.
+
+
+
+ 
 ---
-Uma das primeiras coisas que você pode fazer antes de começar a *tradear* é escolher um grupo de indicadores, no mundo da análise técnica nós temos 6 categorias de indicadores:
+
+Bom com isso você já aprendeu bastanet sobre Otimização Quântica, agora é a hora de escolher os indicadores a serem otimizados, no mundo da análise técnica nós temos 6 categorias de indicadores:
 
 1. Indicadores de Tendência
 
