@@ -655,6 +655,8 @@ if df is not None:
 
 ```
 
+![até mais](https://i.imgur.com/YNns6u1.png)
+
 
 Bom agora é só você se aventurar em testar várias combinações de indicadores.
 
