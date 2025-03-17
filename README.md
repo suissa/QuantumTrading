@@ -165,9 +165,13 @@ print("Valor Ótimo:", result.fval)
 
 ## Explicação do Código
 🔹 Criamos um problema QUBO com variáveis 
+
 🔹 Definimos a função objetivo.
+
 🔹 Convertamos para um Hamiltoniano quântico.
+
 🔹 Aplicamos QAOA para encontrar a solução.
+
 🔹 Medimos os qubits e ajustamos os parâmetros com um otimizador clássico.
 
 
@@ -176,9 +180,13 @@ print("Valor Ótimo:", result.fval)
 O QAOA pode ser usado para otimizar:
 
 🔹 Trading Algorítmico → Ajuste de parâmetros de indicadores como RSI, MACD, Bandas de Bollinger.
+
 🔹 Seleção de Portfólio → Escolher ativos maximizando retorno e minimizando risco.
+
 🔹 Roteamento Logístico → Encontrar o caminho mais eficiente para entregas.
+
 🔹 Alocação de Recursos → Escolher a melhor distribuição de investimentos.
+
 
 | Algoritmo	| Características |
 ------------|-----------------|
